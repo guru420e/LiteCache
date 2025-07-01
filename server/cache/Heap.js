@@ -83,7 +83,8 @@ class Heap {
     return min;
   }
 
-  remove(key) {
+  remove(node) {
+    const key = node.key;
     if (!this.map.has(key)) return false;
 
     const index = this.map.get(key);

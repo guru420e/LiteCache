@@ -15,7 +15,10 @@ describe("Heap", () => {
     const heap = new Heap();
     heap.add({ key: "a", expiresAt: 5000 });
     heap.add({ key: "b", expiresAt: 3000 });
-    heap.remove("b");
+    heap.remove({
+      key: "b",
+      expiresAt: 3000,
+    });
 
     expect(heap.peek().key).toBe("a");
   });
