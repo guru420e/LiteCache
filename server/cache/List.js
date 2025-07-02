@@ -5,6 +5,10 @@ class List {
     this.size = 0; // The size of the list
   }
 
+  getSize() {
+    return this.size;
+  }
+
   addToHead(node) {
     if (!this.head) {
       this.head = node;
@@ -13,6 +17,18 @@ class List {
       node.next = this.head;
       this.head.prev = node;
       this.head = node;
+    }
+    this.size++;
+  }
+
+  addToTail(node) {
+    if (!this.tail) {
+      this.head = node;
+      this.tail = node;
+    } else {
+      node.prev = this.tail;
+      this.tail.next = node;
+      this.tail = node;
     }
     this.size++;
   }
@@ -50,6 +66,14 @@ class List {
     const lastNode = this.tail;
     this.remove(lastNode);
     return lastNode;
+  }
+
+  removeFirst() {
+    if (!this.head) return null;
+
+    const firstNode = this.head;
+    this.remove(firstNode);
+    return firstNode;
   }
 }
 export default List;

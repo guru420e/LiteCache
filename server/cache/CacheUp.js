@@ -36,12 +36,13 @@ class LiteCache {
     }
   }
 
-  emitBatchEviction(batch) {
+  emitAll(data, reason = "") {
     if (this.io) {
-      console.log(`from emitBatchEviction Emitting batch eviction`);
-      this.io.emit("evictions", {
-        type: "evictions",
-        data: batch,
+      console.log(`Emitting all data with reason: ${reason}`);
+      this.io.emit("cacheDump", {
+        type: "cacheDump",
+        data: data,
+        reason: reason,
       });
     }
   }
@@ -120,10 +121,12 @@ class LiteCache {
 
 const cache = new LiteCache();
 
+const producer = new List();
+
 function cleaner(cache) {
   const node = cache.heap.pop();
   cache.remove(node.key, node);
-  cache.emitEviction(node.key, "TTL Expiration");
+  producer.addToTail(node);
 }
 
 function cleanerThrottler(cache) {
@@ -131,30 +134,28 @@ function cleanerThrottler(cache) {
 
   return () => {
     setTimeout(function fun() {
-      const batch = [];
-
+      let start = Date.now();
       while (
-        batch.length <= 100 &&
-        cache.heap.getSize() > 0 &&
-        cache.heap.peek().expiresAt < Date.now()
+        Date.now() - start < 500 &&
+        cache.heap.size > 0 &&
+        cache.heap.peek().expiresAt <= Date.now()
       ) {
-        const node = cache.heap.pop();
-        cache.remove(node.key, node);
-        batch.push({
-          key: node.key,
-          reason: "TTL Expiration",
-        });
+        try {
+          cleaner(cache);
+          interval = 500; // Reset on cleanup
+        } catch (e) {
+          console.error("Cleaner failed:", e);
+        }
       }
 
       const top = cache.heap.peek();
 
-      if (batch.length > 0) {
-        cache.emitBatchEviction(batch);
-      } else if (top && top.expiresAt > Date.now()) {
-        interval = Math.max(500, top.expiresAt - Date.now());
+      if (top && top.expiresAt > Date.now()) {
+        interval = top.expiresAt - Date.now();
+      } else if (top) {
+        interval = 500; // Reset to default if no valid top node
       } else interval += 500;
 
-      interval = Math.min(interval, 5000);
       setTimeout(fun, interval);
     }, interval);
   };
@@ -162,5 +163,17 @@ function cleanerThrottler(cache) {
 
 const throttledCleaner = cleanerThrottler(cache);
 throttledCleaner();
+
+const TTLEmitter = setInterval(() => {
+  let start = Date.now();
+  const consumer = [];
+  while (Date.now() - start < 500 && producer.getSize() > 0) {
+    const node = producer.removeFirst();
+    if (node) {
+      consumer.push({ key: node.key, reason: "TTL Expiration" });
+    }
+  }
+  if (consumer.length > 0) cache.emitAll(consumer, "ttl Cache dump");
+}, 1000);
 
 export default cache;
