@@ -1,4 +1,4 @@
-import cache from "./Cache.js";
+import cache from "../cache/EvictionPolicy.js";
 
 export function memoryUsage() {
   const memoryUsage = process.memoryUsage();

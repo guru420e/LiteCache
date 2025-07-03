@@ -3,7 +3,7 @@ import { createServer } from "http";
 import express from "express";
 import { Server } from "socket.io";
 import { io as Client } from "socket.io-client";
-import cache from "../cache/Cache.js"; // adjust path if needed
+import cache from "../cache/LiteCache.js"; // adjust path if needed
 
 let io, httpServer, clientSocket;
 let evictionEvents = [];
