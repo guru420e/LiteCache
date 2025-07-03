@@ -1,3 +1,4 @@
+import { log } from "console";
 import Heap from "./Heap.js";
 import List from "./List.js";
 import Node from "./Node.js";
@@ -9,6 +10,43 @@ class LiteCache {
     this.list = new List();
     this.limit = 1000; // Default limit, can be adjusted
     this.io = io; // Socket.io instance for emitting events
+  }
+
+  config(options) {
+    if (options.limit) {
+      this.setLimit(options.limit);
+    }
+    if (options.io) {
+      this.setSocket(options.io);
+    }
+  }
+
+  getSize() {
+    return this.map.size;
+  }
+
+  getAll() {
+    const allEntries = [];
+    for (const [key, node] of this.map.entries()) {
+      if (node.expiresAt > Date.now()) {
+        allEntries.push({
+          key: key,
+          value: node.value,
+          ttl: Math.floor((node.expiresAt - Date.now()) / 1000), // Convert ms to seconds
+          evictionStatus: "active",
+        });
+      }
+    }
+    return allEntries;
+  }
+
+  delete(key) {
+    if (!this.map.has(key)) {
+      return null;
+    }
+    const node = this.map.get(key);
+    this.remove(key, node);
+    return node;
   }
 
   // call only when the node is present in the list and heap
@@ -82,7 +120,7 @@ class LiteCache {
       new Node({
         key: key,
         value: value,
-        expiresAt: Date.now() + ttl,
+        expiresAt: Date.now() + ttl * 1000, // Convert seconds to milliseconds
       })
     );
   }
@@ -119,20 +157,13 @@ class LiteCache {
 }
 
 const cache = new LiteCache();
-
-function cleaner(cache) {
-  const node = cache.heap.pop();
-  cache.remove(node.key, node);
-  cache.emitEviction(node.key, "TTL Expiration");
-}
+const batch = [];
 
 function cleanerThrottler(cache) {
   let interval = 500;
 
   return () => {
     setTimeout(function fun() {
-      const batch = [];
-
       while (
         batch.length <= 100 &&
         cache.heap.getSize() > 0 &&
@@ -147,9 +178,14 @@ function cleanerThrottler(cache) {
       }
 
       const top = cache.heap.peek();
+      console.log(batch);
 
       if (batch.length > 0) {
+        console.log(
+          `from cleanerThrottler Emitting batch eviction for ${batch.length} items`
+        );
         cache.emitBatchEviction(batch);
+        batch.length = 0;
       } else if (top && top.expiresAt > Date.now()) {
         interval = Math.max(500, top.expiresAt - Date.now());
       } else interval += 500;
