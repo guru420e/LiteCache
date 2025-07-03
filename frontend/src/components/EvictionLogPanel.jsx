@@ -1,4 +1,7 @@
+import React from 'react';
+
 const EvictionLogPanel = ({ logs, isSubscribed, onToggleSubscription }) => {
+  console.log("EvictionLogPanel rendered with logs:" );
   return (
     <section className="bg-white rounded-lg shadow-sm overflow-hidden">
       <div className="flex justify-between items-center p-6 pb-4">
@@ -37,4 +40,4 @@ const EvictionLogPanel = ({ logs, isSubscribed, onToggleSubscription }) => {
   );
 };
 
-export default EvictionLogPanel;
+export default React.memo(EvictionLogPanel);

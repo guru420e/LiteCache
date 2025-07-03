@@ -1,3 +1,4 @@
+import React from "react";
 const Sidebar = ({ activeTab, setActiveTab }) => {
   const tabs = [
     { id: 'dashboard', name: 'Dashboard', icon: '📊' },
@@ -27,4 +28,4 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
   );
 };
 
-export default Sidebar;
+export default React.memo(Sidebar);

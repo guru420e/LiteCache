@@ -1,3 +1,5 @@
+import React from 'react';
+
 const KeyList = ({ keys, onDeleteKey }) => {
   return (
     <section className="bg-white rounded-lg shadow-sm overflow-hidden">
@@ -45,4 +47,4 @@ const KeyList = ({ keys, onDeleteKey }) => {
   );
 };
 
-export default KeyList;
+export default React.memo(KeyList);

@@ -1,21 +1,20 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 const AddKeyForm = ({ onAddKey }) => {
   const [key, setKey] = useState('');
   const [value, setValue] = useState('');
   const [ttl, setTtl] = useState('');
-
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!key || !value || !ttl) return;
-    
+
     const newKey = {
       key,
       value,
       ttl: parseInt(ttl),
       evictionStatus: 'Active'
     };
-    
+
     onAddKey(newKey);
     setKey('');
     setValue('');
@@ -72,4 +71,4 @@ const AddKeyForm = ({ onAddKey }) => {
   );
 };
 
-export default AddKeyForm;
+export default React.memo(AddKeyForm);
