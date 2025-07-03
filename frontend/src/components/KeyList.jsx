@@ -21,11 +21,11 @@ const KeyList = ({ keys, onDeleteKey }) => {
                 <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">{item.ttl}</td>
                 <td className="px-4 py-4 whitespace-nowrap text-sm">
                   <span className={`px-2 py-1 rounded-full text-xs ${
-                    item.evictionStatus === 'Active' 
+                    item.evictionStatus.toLowerCase() === 'active' 
                       ? 'bg-green-100 text-green-800' 
                       : 'bg-yellow-100 text-yellow-800'
                   }`}>
-                    {item.evictionStatus}
+                    {item.evictionStatus.toLowerCase()}
                   </span>
                 </td>
                 <td className="px-4 py-4 whitespace-nowrap text-sm">
