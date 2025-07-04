@@ -1,4 +1,6 @@
+import React from "react";
 const CacheSizeWidget = ({ stats }) => {
+    console.log("CacheSizeWidget rendered with stats:", stats);
   return (
     <div className="fixed bottom-6 right-6 bg-white p-4 rounded-lg shadow-lg border border-gray-200">
       <div className="text-sm font-medium text-gray-700 mb-1">Cache Size</div>
@@ -12,4 +14,4 @@ const CacheSizeWidget = ({ stats }) => {
   );
 };
 
-export default CacheSizeWidget;
+export default React.memo(CacheSizeWidget);

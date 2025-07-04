@@ -6,23 +6,30 @@ const socket = io("http://localhost:3000");
 let batchEvictions = [];
 let singleEvictions = [];
 
-socket.on("connect", () => {
+function sleep(ms){
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+socket.on("connect", async () => {
   console.log("✅ Connected with ID:", socket.id);
 
   // TTL Expiry Test (batched)
+  await sleep(1000);
   console.log("⏳ [TTL Test] Setting multiple keys with TTL = 1000ms...");
-  socket.emit("set", { key: "a", value: "alpha", ttl: 1000 });
-  socket.emit("set", { key: "b", value: "bravo", ttl: 1000 });
-  socket.emit("set", { key: "c", value: "charlie", ttl: 1000 });
-  socket.emit("set", { key: "d", value: "delta", ttl: 1000 });
+  socket.emit("set", { key: "a", value: "alpha", ttl: 100 });
+  socket.emit("set", { key: "b", value: "bravo", ttl: 100 });
+  socket.emit("set", { key: "c", value: "charlie", ttl: 100 });
+  socket.emit("set", { key: "d", value: "delta", ttl: 100 });
+  socket.emit("set", { key: "e", value: "delta", ttl: 100 });
+  socket.emit("set", { key: "f", value: "delta", ttl: 100 });
 
-  // Race condition test (rapid overwrites)
-  setTimeout(() => {
-    console.log("🚦 [Race Test] Performing rapid updates on key 'race-key'...");
-    socket.emit("set", { key: "race-key", value: "one", ttl: 5000 });
-    socket.emit("set", { key: "race-key", value: "two", ttl: 5000 });
-    socket.emit("set", { key: "race-key", value: "three", ttl: 5000 });
-  }, 200);
+  await sleep(1000)
+
+  socket.emit("set", { key: "c", value: "cc", ttl: 100 });
+  await sleep(1000);
+
+
+
 
   // LRU test (limited to 3)
   setTimeout(() => {
