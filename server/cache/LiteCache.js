@@ -95,6 +95,7 @@ class LiteCache {
             this.remove(key, this.map.get(key));
 
             this.set(key, value, ttl);
+            return;
         }
 
         if (this.limit <= this.map.size) {

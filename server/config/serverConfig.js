@@ -27,7 +27,7 @@ io.on("connection", ioLogger);
 
 // will be set from the query params in the future
 cache.config({
-    limit: 2,
+    limit: 5,
     io,
 })
 
